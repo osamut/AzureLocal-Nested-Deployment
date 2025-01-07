@@ -2,7 +2,7 @@
 
 ## 0. 本手順が想定しているネットワーク構成図
 
-![image](https://github.com/osamut/AzureStackHCI_23H2/assets/1791583/8c009dd9-d86e-4931-bcb7-a60e1534df88)
+![image](https://github.com/osamut/AzureLocal-Nested-Deployment/blob/main/Nested-AzureLocal%E7%B0%A1%E6%98%93%E6%A7%8B%E6%88%90%E5%9B%B3.png))
 
 ## 1. 準備
 
