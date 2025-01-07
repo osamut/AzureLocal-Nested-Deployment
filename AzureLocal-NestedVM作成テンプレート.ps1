@@ -4,7 +4,7 @@
 $nodeName = ""
 $NATSwitchName = ""
 $AzureLocalISOPath = ""
-$VMFilePath = "E:\VMs\"
+$VMFilePath = ""
 $VMFileFullPath = Join-Path $VMFilePath -ChildPath "\$nodeName\Virtual Hard Disks\$nodeName.vhdx"
 $VMStorageFilePath = Join-Path $VMFilePath -ChildPath "\$nodeName\Virtual Hard Disks\"
 
