@@ -125,8 +125,11 @@ Invoke-Command -VMName $nodeName -Credential $azsHCILocalCreds -ScriptBlock {Set
 Invoke-Command -VMName $nodeName -Credential $azsHCILocalCreds -ScriptBlock {New-NetIPAddress -InterfaceAlias "NIC1" -IPAddress $using:ManagementNICIP -PrefixLength 16 -AddressFamily IPv4 -DefaultGateway $using:DefaultGatewayIP}
 Invoke-Command -VMName $nodeName -Credential $azsHCILocalCreds -ScriptBlock {Set-DnsClientServerAddress -InterfaceAlias "NIC1" -ServerAddresses $using:DNSServerIP}
 
-#IPv6 を無効化
+# IPv6 を無効化
 Disable-NetAdapterBinding -Name * -ComponentID ms_tcpip6
+
+# 再起動前に DVD を外しておく　※BitLocker 暗号化処理時のエラーを防ぐため
+Get-VM -VMName $nodename | Get-VMDVDDrive | Set-VMDVDDrive -Path $Null
 
 # ノード名を変更し、仮想マシンを再起動
 Invoke-Command -VMName $nodeName -Credential $azsHCILocalCreds -ScriptBlock {Rename-Computer -NewName $Using:nodeName -LocalCredential $Using:azsHCILocalCreds -Force -Verbose}
