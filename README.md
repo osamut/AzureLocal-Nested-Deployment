@@ -4,6 +4,10 @@
 
 ![image](https://github.com/osamut/AzureLocal-Nested-Deployment/blob/main/Nested-AzureLocal%E7%B0%A1%E6%98%93%E6%A7%8B%E6%88%90%E5%9B%B3.png))
 
+### 現在 ”Azure Stack HCI” から ”Azure Local" へのブランド変更中のため、画面によって表記が変わることがあるが、同じものとして処理を続行してください
+- Azure local 各ノード用のVMには vCPU 16、メモリ 32GB、起動ディスク200GB (可変ディスク)、ストレージ用ディスク 100GBx6 (可変ディスク) を割り当てている
+- パラメーター化はしていないが、変更が可能なので環境に合わせてスクリプト内の数値を変更してください
+
 ## 1. 準備
 
 - Hyper-V マシンを用意
@@ -19,7 +23,7 @@
 ## 2. ステップ１： 疑似的な Azure local ノード (仮想マシン) の作成
 	
 - 作成テンプレートのステップ１を利用
-- ノード名や準備段階でNAT設定したHyper-V仮想スイッチ名、Azure Local ISOイメージのパス、仮想マシンを配置するフォルダー名などを変数として記入
+- ノード名や準備段階でNAT設定したHyper-V仮想スイッチ名、Azure Local ISOイメージのパス、仮想マシンを配置するフォルダー名などをパラメーターを記入
 - 「### ステップ１開始」から「### ステップ１終了」までの行を選択し、[選択項目を実行(F8)]をクリック
 	- 仮想マシンの作成、設定が自動で行われ、Hyper-Vのコンソールが立ち上がる
 	- コンソール内では、仮想マシンが自動起動し、ISOからブートするための画面になるのでEnterなどを押下し、Azure Local OSのインストールを実行
@@ -31,7 +35,8 @@
 ## 3. ステップ２：　Azure Local ノードのネットワーク設定
 
 - 作成テンプレートのステップ２を利用
-- 管理用NICのIPアドレス、デフォルトゲートウェイ、DNSサーバーIPアドレス、administrator のパスワードなどを変数として記入
+- 管理用NICのIPアドレス、デフォルトゲートウェイ、DNSサーバーIPアドレス、administrator のパスワードなどのパラメーターを記入
+	- パスワードを都度入力したい場合はスクリプトを調整すること 
 - 「### ステップ２開始」から「### ステップ２終了」までの行を選択し、[選択項目を実行(F8)]をクリック
 	- ネットワーク設定が自動で行われ、仮想マシンが自動で再起動
 	- 再起動したら次のステップに進む 
@@ -43,6 +48,7 @@
 	- RBAC 権限設定 https://learn.microsoft.com/ja-jp/azure/azure-local/deploy/deployment-arc-register-server-permissions?tabs=powershell
 
 - 作成テンプレートのステップ３を利用
+- Azure サブスクリプションIDなどの各パラメーターをスクリプトに記入
 - Hyper-Vの仮想マシンコンソールにAdministratorのパスワードを入力し、ログオン ~Sconfig起動
 -「Enter number to select an option:」に 15 と入力して PowerShell の画面に移動
 -「### ステップ３開始」から「### ステップ３終了」までの行をコピーし、仮想マシンコンソールの PowerShell 画面に張り付け
@@ -71,7 +77,7 @@
 		- Microsoft.HybridConnectivity
   		- Microsoft.AzureStackHCI
 
-## 6. ステップ５：　Azure Stack HCI クラスター展開　※ Nested 関係なし
+## 6. ステップ５：　Azure Local クラスター展開　※ Nested 関係なし
 	
 ### 事前設定
 - Azure ポータルが英語であることを確認  ・・・不要なトラブルを回避するため
@@ -122,7 +128,7 @@
 - 4-14: [DNS Server のIPアドレス] を入力
 - 4-15: [Next: Management] をクリック
 #### 5. Management タブ
-- 5-1: Azure から Azure Stack HCI クラスターに指示を出す際に利用するロケーション名として [任意のCustom location name] を入力
+- 5-1: Azure から Azure Local クラスターに指示を出す際に利用するロケーション名として [任意のCustom location name] を入力
    	- 良く使うので、プロジェクト名や場所、フロアなどを使って、わかりやすい名前を付けておくこと
 	- 思い浮かばない時はクラスター名に-cl とつけておくとわかりやすいかも
 - 5-2: Cloud witness 用に [Create new]を クリック、さらに右に出てきた内容を確認
@@ -139,15 +145,15 @@
 	- 古いサーバーを使って展開をする場合など、推奨設定の機能を満たせない場合は [Custommized security settings] をクリックして有効にしたい項目のみを選択
 #### 7. Advanced タブ
 - [Create workoad volumes and required infrastructure volumes] が選択されていることを確認し[Next: Tags] をクリック
-	- 既定で、Software Defined Storage プールに Infrastructure ボリュームと、Azure Stack HCI 各ノードを Owner とする論理ボリュームを自動作成してくれる
+	- 既定で、Software Defined Storage プールに Infrastructure ボリュームと、Azure Local 各ノードを Owner とする論理ボリュームを自動作成してくれる
 #### 8. Azure 上のオブジェクトを管理しやすくする任意のタグをつけ、[Next: Validation] をクリック
 #### 9. Validation タブ
 - 9-1: 特に問題が無ければ Resource Creation として6つの処理を行うため全て Succeeded になることを確認
 - 9-2: [Start Validation] をクリック
 - 9-3: 更に 11 個のチェックが行われ Validation が完了したら [Next: Preview + Create] をクリック
-#### 10. [Create] をクリックし、Azure Stack HCI Cluster Deployment を開始
-   - 画面が Azure Stack HCI 管理画面の ”Settings” にある「Deployments」が選択された状態に遷移するので [Refresh] をクリックして状況を確認できる
+#### 10. [Create] をクリックし、Azure Local Cluster Deployment を開始
+   - 画面が Azure Local 管理画面の ”Settings” にある「Deployments」が選択された状態に遷移するので [Refresh] をクリックして状況を確認できる
    - 手元の 2 ノードで 2 時間半程度かかった
    - "Deploy Arc infrastructure components" ステップでエラーが出る場合 (HCIノードへの接続を繰り返し行いタイムアウト)、Failover Cluster Manager画面の自動作成されたResource Bridge VM のネットワーク設定にて、「Enable MAC address spoofing」を有効にし、「Protected network」を無効にすることでエラー回避可能
-   - OS の更新やドメイン参加を含め Azure Stack HCI 23H2 クラスター作成作業が自動で行われ、終了すると Azure から管理可能な状態になる
+   - OS の更新やドメイン参加を含め Azure Local 23H2 クラスター作成作業が自動で行われ、終了すると Azure から管理可能な状態になる
    - 途中エラーが出た場合はログを確認するなどして対処し [Rerun deployment] を実施
