@@ -1,8 +1,8 @@
 # Azure Local 23H2 Nested Hyper-V での展開方法
 
-## 0. 本手順が想定しているネットワーク構成図
+## 0. 本手順が想定している環境の概要図
 
-![image](https://github.com/osamut/AzureLocal-Nested-Deployment/blob/main/Nested-AzureLocal%E7%B0%A1%E6%98%93%E6%A7%8B%E6%88%90%E5%9B%B3.png))
+![image](https://github.com/osamut/AzureLocal-Nested-Deployment/blob/main/Nested-AzureLocal%E7%B0%A1%E6%98%93%E6%A7%8B%E6%88%90%E5%9B%B3.png)
 
 ### 現在 ”Azure Stack HCI” から ”Azure Local" へのブランド変更中のため、画面によって表記が変わることがあるが、同じものとして処理を続行してください
 - Azure local 各ノード用のVMには vCPU 16、メモリ 32GB、起動ディスク200GB (可変ディスク)、ストレージ用ディスク 100GBx6 (可変ディスク) を割り当てている
