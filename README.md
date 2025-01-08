@@ -15,7 +15,7 @@
 
 ## 1. ステップ０： Hyper-V 環境の準備
 
-- Hyper-V マシンを用意
+#### Hyper-V マシンを用意
 - 仮想スイッチを作成
 - 仮想スイッチをNATに設定　https://learn.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/setup-nat-network
 - 仮想スイッチにつながった Active Directory ドメインコントローラー用の仮想マシンを１台作成し、AD＋DNS 環境を構築
