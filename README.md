@@ -15,16 +15,16 @@
 
 ## 1. ステップ０： Hyper-V 環境の準備
 
-#### Hyper-V マシンを用意
-- 仮想スイッチを作成
-- 仮想スイッチをNATに設定　https://learn.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/setup-nat-network
-- 仮想スイッチにつながった Active Directory ドメインコントローラー用の仮想マシンを１台作成し、AD＋DNS 環境を構築
-	- AVD for Azure Local を利用する場合は AD と Entra ID を同期 
-- AD に Azure Local 作成のための事前設定を実施　https://learn.microsoft.com/ja-jp/azure/azure-local/deploy/deployment-prep-active-directory
-- 同GitHub サイトから「AzureLocal-NestedVM作成テンプレート.ps1」をダウンロード
-	- ダウンロードしたファイルをノード数分コピーしておくと作業効率が上がる
-- Hyper-V マシンにて PowerShell ISE を管理者モードで起動し、作成テンプレートを開く
-	- PowreShell ISE をノード数分起動してそれぞれでファイルを開くと Azure Local ノード作成の並行処理が可能
+#### 1. Hyper-V 用の物理マシンを用意し、Windows Server をインストール
+- 評価版はこちら　https://www.microsoft.com/ja-jp/evalcenter/evaluate-windows-server-2025?msockid=37cad9ef540b6a4a36f3ccc055716b9c
+#### 2. NATを有効化した仮想スイッチを作成　https://learn.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/setup-nat-networkHyper-V 仮想スイッチを作成
+#### 3. 仮想スイッチにつながった Windows Server 仮想マシンを１台作成し、 Active Directory ドメインコントローラー環境を構築
+- AVD for Azure Local を利用する場合は AD と Entra ID を同期
+#### 4. AD に対して Azure Local 作成のための事前設定を実施　https://learn.microsoft.com/ja-jp/azure/azure-local/deploy/deployment-prep-active-directory
+#### 5. 本 GitHub サイトから「AzureLocal-NestedVM作成テンプレート.ps1」をダウンロード
+- ダウンロードしたファイルをノード数分コピーしておくと作業効率が上がる
+#### 6. Hyper-V マシンにて PowerShell ISE を管理者モードで起動し、作成テンプレートを開く
+- PowreShell ISE をノード数分起動してそれぞれでファイルを開くと Azure Local ノード作成の並行処理が可能
 
 ## 2. ステップ１： 疑似的な Azure local ノード (仮想マシン) の作成　　(作成テンプレートのステップ１を利用)
 	
