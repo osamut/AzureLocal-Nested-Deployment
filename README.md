@@ -142,7 +142,8 @@
 - 5-9: [Next: Security] をクリック
 #### 6. Security タブ
 - [Recommended security settings] が選択されていることを確認し [Next: Advanced] をクリック
-	- 古いサーバーを使って展開をする場合など、推奨設定の機能を満たせない場合は [Custommized security settings] をクリックして有効にしたい項目のみを選択
+	- Nested でもデフォルトのまま展開できることを確認済み
+ 	- 推奨設定の機能を変更したい場合は [Custommized security settings] をクリックして有効にしたい項目のみを選択
 #### 7. Advanced タブ
 - [Create workoad volumes and required infrastructure volumes] が選択されていることを確認し[Next: Tags] をクリック
 	- 既定で、Software Defined Storage プールに Infrastructure ボリュームと、Azure Local 各ノードを Owner とする論理ボリュームを自動作成してくれる
