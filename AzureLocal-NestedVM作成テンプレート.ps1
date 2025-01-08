@@ -162,6 +162,9 @@ Connect-AzAccount -SubscriptionId $Subscription -TenantId $Tenant -DeviceCode
 $ARMtoken = (Get-AzAccessToken).Token
 $id = (Get-AzContext).Account.Id
 
+# IPv6 の無効化　(念のため再度実行）
+Disable-NetAdapterBinding -Name * -ComponentID ms_tcpip6
+
 # Azure Arc 登録作業
 Invoke-AzStackHciArcInitialization -SubscriptionID $Subscription -ResourceGroup $RG -TenantID $Tenant -Region $Region -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id
 
