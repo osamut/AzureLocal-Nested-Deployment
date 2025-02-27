@@ -152,18 +152,10 @@ $Region = ""
 # テナントID ※EntraIDから入手
 $Tenant = ""
 
-# (正式なドキュメントでは不要になっているが、現時点では実施したほうが確実
-Install-Module Az.Accounts -RequiredVersion 3.0.0 -force -Confirm:$false
-Install-Module Az.Resources -RequiredVersion 6.12.0 -force -Confirm:$false
-Install-Module Az.ConnectedMachine -RequiredVersion 0.8.0 -force -Confirm:$false
-
 # デバイスコードを使ったAzureへの接続とトークンの取得
 Connect-AzAccount -SubscriptionId $Subscription -TenantId $Tenant -DeviceCode
 $ARMtoken = (Get-AzAccessToken).Token
 $id = (Get-AzContext).Account.Id
-
-# IPv6 の無効化　(念のため再度実行）
-Disable-NetAdapterBinding -Name * -ComponentID ms_tcpip6
 
 # Azure Arc 登録作業
 Invoke-AzStackHciArcInitialization -SubscriptionID $Subscription -ResourceGroup $RG -TenantID $Tenant -Region $Region -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id
