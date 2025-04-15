@@ -140,24 +140,3 @@ Start-VM -Name $nodeName
 ### ステップ２終了
 
 
-### ステップ３： 各ノードを Azure Arc へ登録
-
-#利用するAzure関連の情報を記入
-# Azure サブスクリプションID
-$Subscription = ""
-# リソースグループ名
-$RG = ""
-# リージョン名
-$Region = ""
-# テナントID ※EntraIDから入手
-$Tenant = ""
-
-# デバイスコードを使ったAzureへの接続とトークンの取得
-Connect-AzAccount -SubscriptionId $Subscription -TenantId $Tenant -DeviceCode
-$ARMtoken = (Get-AzAccessToken).Token
-$id = (Get-AzContext).Account.Id
-
-# Azure Arc 登録作業
-Invoke-AzStackHciArcInitialization -SubscriptionID $Subscription -ResourceGroup $RG -TenantID $Tenant -Region $Region -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id
-
-#３番目のステップはここまで －－－－
