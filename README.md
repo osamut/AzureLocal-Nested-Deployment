@@ -9,7 +9,7 @@
 
 > [!NOTE]  
 >- Azure Local 展開には NTP 接続が必要です。もしインターネット上のタイムサーバーと接続できない場合は、ローカルにタイムサーバーを立ててAzure Local 各ノードとの接続を確認してください
->- NTP接続確認は Sconfig の 9 から GUI で実施可能です
+>- NTP接続確認は Azure Local OS の Sconfig 画面の 9 から GUI で実施可能です
 >- Azure local 各ノード用の VM には vCPU 16、メモリ 32GB、起動ディスク200GB (可変ディスク)、ストレージ用ディスク 100GBx6 (可変ディスク) を割り当てています
 >- パラメーター化はしていませんが、変更は可能なので環境に合わせてスクリプト内の数値を変更してください
 
@@ -20,24 +20,21 @@
 #### 2. NATを有効化した仮想スイッチを作成
 - https://learn.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/setup-nat-networkHyper-V
 #### 3. 仮想スイッチにつながった Windows Server 仮想マシンを１台作成し、 Active Directory ドメインコントローラー環境を構築
+- https://learn.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/enable-nested-virtualization
 - AVD for Azure Local を利用する場合は AD と Entra ID を同期
 #### 4. AD に対して Azure Local 作成のための事前設定を実施
 - https://learn.microsoft.com/ja-jp/azure/azure-local/deploy/deployment-prep-active-directory
 #### 5. 本 GitHub サイトから「AzureLocal-NestedVM作成テンプレート.ps1」をダウンロード
-- ダウンロードしたファイルをノード数分コピーしておくと作業効率が上がる
+- ダウンロードしたファイルをノード数分コピーしてパラメータ設定をしておくと並行作業が可能
 #### 6. Hyper-V マシンにて PowerShell ISE を管理者モードで起動し、作成テンプレートを開く
-- PowreShell ISE をノード数分起動してそれぞれでファイルを開くと Azure Local ノード作成の並行処理が可能
+- PowreShell ISE をノード数分起動してそれぞれでファイルを開くことで Azure Local ノード作成の並行処理を実現
 
 > [!NOTE]  
 >- RBAC 権限設定 https://learn.microsoft.com/ja-jp/azure/azure-local/deploy/deployment-arc-register-server-permissions?tabs=powershell
 
 #### 7. Azure ポータル(https://portal.azure.com) にログオン
-#### 8. Azure ポータルを英語に変更
-- 不要なトラブルを回避するため
-- (本手順書作成時は日本語ポータルでも可能だが、内部処理変更時に言語対応ができていないとエラーになるので)
-#### 9. Azure Local に関連するオブジェクトを登録するリソースグループを新規作成
+#### 8. Azure Local に関連するオブジェクトを登録するリソースグループを新規作成
 - リソースグループ配下にAzure Local ノードやクラスター、VM、Key Vault、Witness Storage などの各オブジェクトが作成される
-- 2024年5月4日時点で Japan East での作業が可能になっている
 #### 10. サブスクリプションに以下のリソースプロバイダーが登録されていることを確認し、登録されていなければ登録する		
 	- Microsoft.HybridCompute
 	- Microsoft.GuestConfiguration
@@ -61,7 +58,7 @@
 - 仮想マシンの作成、設定が自動で行われ、Hyper-Vのコンソールが立ち上がる
 #### 3. コンソール内では、仮想マシンが自動起動し、ISOからブートするための画面になるのでEnterなどを押下し、Azure Local OSのインストールを実行
 - OS は１つだけ違うサイズのディスク(一番上に表示される)にインストール
-#### 4. インストール完了後、administrator のパスワードを入力
+#### 4. インストール完了後、administrator のパスワードを12文字以上に複雑なパスワードで入力
 - パスワード入力後、画面上で Sconfig が起動するが、(現時点では) 数分以内に自動で再起動が始まるため再起動が完了するまで待つとよい
 - もし数分経って再起動しない場合は次のステップに進む 
     
@@ -73,87 +70,102 @@
 - ネットワーク設定が自動で行われ、仮想マシンが自動で再起動
 - 再起動したら次のステップに進む 
 
-## 4. ステップ３： 各ノードを Azure Arc へ登録　　(作成テンプレートのステップ３を利用)
+## 4. ステップ３： 各ノードを Azure Arc へ登録
 
-#### 1. Azure サブスクリプションIDなどの各パラメーターをスクリプトに記入　(PowerShell ISEから実行はしない)
-#### 2. Hyper-V の仮想マシンコンソールに Administrator のパスワードを入力し、ログオン 　~Sconfig が自動起動
-#### 3. Sconfig にて「Enter number to select an option:」に 15 と入力して PowerShell の画面に移動
-#### 4.「### ステップ３開始」から「### ステップ３終了」までの行をコピーし、仮想マシンコンソールの PowerShell 画面に張り付け
-- 途中 デバイス認証用のコードが表示されるのでコードをコピー
-- ブラウザーが利用可能な手元のマシンなどで https://microsoft.com/devicelogin にアクセスし、コードを貼り付け、RBAC 設定を行った ID で認証を実施
-- そのまま処理が進み、各ノードが Azure Arc に登録される
-#### 5. Azure Portal の Azure Arc 管理画面で登録されたノードをクリック
-- [設定]の下の[拡張機能]をクリックし、4つの拡張モジュールの作成が完了するのを待つ　　(しばらくすると5つ目も作成されているが気にしない)
-- すべてのノードで拡張機能の作成が完了したら次のステップへ
-	
-## 5. ステップ４：　Azure Local クラスター展開　※ Nested 関係なし
+#### 1. Hyper-V マネージャーにて、ドメインコントローラー仮想マシンに接続
+#### 2. ドメインの Administrator でログオン
+#### 3. Configurator application をダウンロードし、起動
+- https://aka.ms/ConfiguratorAppForHCI
+#### 4. Configurator application にてノード１の Azure Arc 接続作業
+- 4-4-1: マシン名： ノード１の IP アドレスを入力
+- 4-4-2: サインイン： administrator
+- 4-4-3: パスワードの入力： Azure Local OS インストール後に設定したパスワードを入力
+- 4-4-4: Azure Arc エージェントのセットアップ：
+	- [開始]-[次へ]
+	- 鉛筆マークをクリックし、[NIC1]を選択して[次へ]
+	- 利用するAzure の[サブスクリプションID][リソースグループ][リージョン][テナントID]を入力し[次へ]
+	- [完了] 
+	- 画面の表示が切り替わり、6つのステップを表示。しばらくすると 6 番目の ARC 構成で認証が促される
+	- デバイスコードをコピーし、https://microsoft.com/devicelogin にアクセスしてコードを貼り付け、
+	　 Azure Local 展開の権限を持つ Entra ID ユーザーで認証を完了
+- 4-4-5: ARC 構成が成功したのち、Azure Portal にて Azure Local マシンが Azure Arc マシンとして登録されているかを確認
+#### 5. Configurator application にてノード１の Azure Arc 接続作業
+- 4-4-1～4-4-5 と同じ操作をノード２に対して実施
+
+## 5. ステップ４：　Azure Local クラスター展開
 
 ### クラスター構築作業
--  Azure ポータルの [Azure Arc] - [Azure Stack HCI] 管理画面にて、[All Clusters (PREVIEW)] を選択
-	-  PREVIEW ではない画面にしたい場合は、画面内の [Old Experience] をクリックすると GA 済みの画面が表示される
-#### 1. [+Create] メニューから [Azure Stack HCI Cluster] を選択
-#### 2. Basics タブ
+-  Azure ポータルの [Azure Arc] - [Azure Local] 管理画面にて、[すべてのシステム (プレビュ―)] を選択
+	-  プレビューではない画面にしたい場合は、画面内の [以前のエクスペリエンスに切り替える] をクリックすると GA 済みの画面が表示される
+#### 1. [+作成] メニューから [Azure Local インスタンス] を選択
+#### 2. 基本タブ
 - 2-1: 展開に利用する [サブスクリプション] と [リソースグループ] を選択
 	- リソースグループが違うと画面一番下に Arc に登録したサーバー一覧が表示されないので注意
-- 2-2: [Cluster name] を入力
-- 2-3: Region はサポートしているリージョンを入力　※ Japan East で OK
-- 2-4: Key vault name では [Create a new key vault] をクリックし、右に出てくる画面で [Create] をクリック
-	- 権限付与のリンクが表示されたらクリック 
+- 2-2: [インスタンス名] には作成するクラスターの名前を入力
+- 2-3: [リージョン]はサポートしているリージョンを入力　※ Japan East で OK
+- 2-4: [＋マシンの追加] をクリックし、Azure Arcに接続した Azure Local マシン2台を追加
+	- 「Arc 拡張機能がありません」と表示されているので、[拡張機能のインストール] をクリック　※ 15分ほどかかる
+	-  Azure Portal の Azure Arc 管理画面にて、マシンの一覧にある Azure Local ノードを選択
+	- [設定]の下の[拡張機能]をクリックし、4つの拡張モジュールの作成が完了するのを待つ (MDE.Windows は除く)
+- 2-5: すべてのノードが準備完了になったら[選択したマシンの確認]をクリック
+- 2-6: キーコンテナ―名では [新しいキーコンテナーの作成] をクリックし、右に出てくる画面で [作成] をクリック
 	- 繰り返し同じ作業をした場合は既存の Key Vault を削除するか、Key Vault name を変更する事で対応
 	- Key Vault は削除しても削除済みリストに残るので、削除済みリストからさらに削除する必要がある
- - 2-5: リソースグループ内の Azuer Stack HCI ノードの一覧が表示されるので、クラスターに参加させるノードにチェックを入れし、[Validate selected servers] をクリック
- 	- このタイミングでホストのNIC情報を取得するため不要なNICの削除などはこの前に行っておくこと
- - 2-6: Validate が完了したら [Next: Configuration] をクリック
-#### 3. Configuration タブ
- - [New configuration] が選択されていることを確認し [Next: Networking] をクリック
- 	- テンプレートが用意できている場合はテンプレートを利用
-#### 4.  Networking タブ
+- 2-7: 作業が完了したら [次へ: 構成] をクリック
+#### 3. 構成タブ
+ - [新しい構成] が選択されていることを確認し [次へ: ネットワーク] をクリック
+ 	- テンプレートが用意できている場合はテンプレートを利用可能
+#### 4.  ネットワークタブ
 - ※ ここは実際の環境に合わせて設定をする必要がある
 - ※ 以下は NIC4 枚の環境にて、管理＆VM 用ネットワークに NIC1 と NIC2 を、ストレージ用に NIC3 と NIC4 を利用する想定
-- 4-1: [Network switch for storage] をクリック
-- 4-2: [Group management and compute traffic] をクリック
-- 4-3: インテント名「Compute_Management」に対して [NIC1] を選択
-- 4-4: [+ Select another adapter for this traffic] をクリックして [NIC2] を追加
-- 4-5: [Customize network settings] をクリックして「RDMA Protocol」を Disabled に変更
-- 4-6: インテント名「Storage」に対して　[NIC3] を選択
+- 4-1: [ストレージのネットワークスイッチ] を選択
+- 4-2: [管理とコンピューティングのトラフィックをグループ化する] を選択
+- 4-3: インテント名「コンピューティング_管理」に対して [NIC1] を選択
+- 4-4: [+ このトラフィック用の別のアダプターを選択してください] をクリックして [NIC2] を追加
+- 4-5: [ネットワーク設定のカスタマイズ] をクリックして「RDMA プロトコル」を Disabled に変更
+- 4-6: インテント名「ストレージ」に対して [NIC3] を選択
 - 4-7: 必須項目となっている VLAN ID はデフォルトを受け入れる
-   	- ノード間の通信で利用するためのもの
-- 4-8: [+ Select another adapter for this traffic] をクリックして [NIC4] 追加
+- 4-8: [+ このトラフィック用の別のアダプターを選択してください] をクリックして [NIC4] 追加
 - 4-9: VLAN ID はデフォルトを受け入れる
-- 4-10: [Customize network settings] をクリックして「RDMA Protocol」を Disabled に変更
-- 4-11: Azure Local が利用する最低 7 つの IP アドレス範囲を用意し、[Starting IP] ~ [Ending IP] として入力
+- 4-10: [ネットワーク設定のカスタマイズ] をクリックして「RDMA プロトコル」を Disabled に変更
+- 4-11: ノードとインスタンスの IP 割り当てが [手動] になっていることを確認　- DHCP 環境があれば自動でもよい
+- 4-11: Azure Local が利用する最低 6 つの IP アドレス範囲を用意し、[開始 IP] ~ [終了 IP] として入力
 - 4-12: [サブネットマスク　例 255.255.255.0] を入力
-- 4-13: [デフォルトゲートウェイのIPアドレス] を入力
-- 4-14: [DNS Server のIPアドレス] を入力
-- 4-15: [Next: Management] をクリック
-#### 5. Management タブ
-- 5-1: Azure から Azure Local クラスターに指示を出す際に利用するロケーション名として [任意のCustom location name] を入力
+- 4-13: [デフォルトゲートウェイの IP アドレス] を入力
+- 4-14: [DNS サーバーの IP アドレス] を入力
+- 4-15: [サブネットの検証] をクリック
+- 4-16: [次へ: 管理] をクリック
+#### 5. 管理タブ
+- 5-1: Azure から Azure Local クラスターに指示を出す際に利用するロケーション名として [任意のカスタムの場所の名前] を入力
    	- 良く使うので、プロジェクト名や場所、フロアなどを使って、わかりやすい名前を付けておくこと
 	- 思い浮かばない時はクラスター名に-cl とつけておくとわかりやすいかも
-- 5-2: Cloud witness 用に [Create new]を クリック、さらに右に出てきた内容を確認
-	- 必要に応じて修正のうえ、[Create] をクリックし、Azure Storage Account を作成
-- 5-3: [ドメイン名 例 contoso.com] を入力
-- 5-4: [OU名 　例 OU=test,DC=contoso,DC=com ] を入力　　　※Active Directory の準備の際に設定したOU
-- 5-5: Deployment 用の [Username] を入力　　※ Active Directory の準備の際に指定した Deployment 用のユーザー名
-- 5-6: [Password]  [Confirm password] を間違えないように入力
-- 5-7: Local administrator としての [Username] を入力　　※特別な設定をしていなければ Administrator で OK
-- 5-8: [Password]  [Confirm password] を間違えないように入力
-- 5-9: [Next: Security] をクリック
-#### 6. Security タブ
-- [Recommended security settings] が選択されていることを確認し [Next: Advanced] をクリック
+- 5-2: Azure ストレージアカウント名では、Cloud witness 用に [新規作成]をクリック、さらに右に出てきた内容を確認
+	- [作成] をクリックし、Azure ストレージアカウントを作成
+- 5-3: ドメイン [例 contoso.com] を入力
+- 5-4: OU  [例 OU=test,DC=contoso,DC=com] を入力　　　※Active Directory の準備の際に設定した OU
+- 5-5: デプロイアカウントユーザー名を入力　　※ Active Directory の準備の際に指定した Deployment 用のユーザー名
+- 5-6: デプロイアカウントユーザーのパスワードを間違えないように入力　※ Deployment 用ユーザーのパスワード
+- 5-7: Azure Local マシンのローカル管理者のユーザー名 [administrator] を入力　　※特別な設定をしていなければ Administrator で OK
+- 5-8: Azure Local マシンのローカル管理者パスワードを間違えないように入力　　※ Azure Local OS インストール後に設定したパスワードを入力
+- 5-9: [次へ: セキュリティ] をクリック
+#### 6. セキュリティタブ
+- [推奨セキュリティ設定] が選択されていることを確認し [次へ: 詳細設定] をクリック
 	- Nested でもデフォルトのまま展開できることを確認済み
- 	- 推奨設定の機能を変更したい場合は [Custommized security settings] をクリックして有効にしたい項目のみを選択
-#### 7. Advanced タブ
-- [Create workoad volumes and required infrastructure volumes] が選択されていることを確認し[Next: Tags] をクリック
+ 	- 推奨設定の機能を変更したい場合は [カスタマイズされたセキュリティ設定] をクリックして有効にしたい項目のみを選択
+#### 7. 詳細設定タブ
+- [ワークロード ボリュームと必要なインフラストラクチャ ボリュームを作成する] が選択されていることを確認し[次へ: タグ] をクリック
 	- 既定で、Software Defined Storage プールに Infrastructure ボリュームと、Azure Local 各ノードを Owner とする論理ボリュームを自動作成してくれる
-#### 8. Azure 上のオブジェクトを管理しやすくする任意のタグをつけ、[Next: Validation] をクリック
-#### 9. Validation タブ
-- 9-1: 特に問題が無ければ Resource Creation として6つの処理を行うため全て Succeeded になることを確認
-- 9-2: [Start Validation] をクリック
-- 9-3: 更に 11 個のチェックが行われ Validation が完了したら [Next: Preview + Create] をクリック
-#### 10. [Create] をクリックし、Azure Local Cluster Deployment を開始
-   - 画面が Azure Local 管理画面の ”Settings” にある「Deployments」が選択された状態に遷移するので [Refresh] をクリックして状況を確認できる
+#### 8. Azure 上のオブジェクトを管理しやすくする任意のタグをつけ、[次へ: 検証] をクリック
+- 検証タブが開き、リソース作成ステップ 7 項目が自動実行される
+#### 9. 検証タブ
+- 9-1: リソース作成用検証ステップの全てが成功になることを確認
+- 9-2: [検証を開始] をクリック
+- 9-3: 更に 12 個のチェックが行われ、検証が完了したら [次へ: 確認および作成] をクリック
+#### 10. 確認および作成タブ
+- [作成] をクリックすると Azure Local クラスターの展開が開始される
+   - 画面がリソースグループのデプロイ管理画面に遷移するのでしばらくそのままに
+   - 画面の表示が変わらなければ、デプロイ管理画面で [更新] をクリックすることで最新の状況を確認できる
    - 手元の 2 ノードで 2 時間半程度かかった
-   - "Deploy Arc infrastructure components" ステップでエラーが出る場合 (HCIノードへの接続を繰り返し行いタイムアウト)、Failover Cluster Manager画面の自動作成されたResource Bridge VM のネットワーク設定にて、「Enable MAC address spoofing」を有効にし、「Protected network」を無効にすることでエラー回避可能
+   - "Deploy Arc infrastructure components" ステップでエラーが出る場合 (HCIノードへの接続を繰り返し行いタイムアウト)、Failover Cluster Manager 画面の自動作成された Resource Bridge VM のネットワーク設定にて、「Enable MAC address spoofing」を有効にすることでエラー回避可能
    - OS の更新やドメイン参加を含め Azure Local 23H2 クラスター作成作業が自動で行われ、終了すると Azure から管理可能な状態になる
-   - 途中エラーが出た場合はログを確認するなどして対処し [Rerun deployment] を実施
+   - 途中エラーが出た場合はログを確認するなどして対処し [デプロイの再開] を実施
