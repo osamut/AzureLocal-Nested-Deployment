@@ -1,4 +1,4 @@
-# Azure Local 23H2 Nested Hyper-V での展開方法
+# Azure Local 2503 Nested Hyper-V での展開方法
 
 ## 0. 本手順が想定している環境の概要図
 
@@ -7,7 +7,10 @@
 > [!CAUTION]
 > ### 現在 ”Azure Stack HCI” から ”Azure Local" へのブランド変更中のため、画面によって表記が変わることがありますが、同じものとして処理を続行してください
 
-> [!NOTE]  
+> [!NOTE]
+>- 各手順のスクリーンショットによる解説はこちらにあります！
+>- https://github.com/osamut/AzureLocal-Nested-Deployment/blob/main/AzureLocal_%E5%B1%95%E9%96%8B%E3%81%AE%E6%B5%81%E3%82%8C_Nested%E3%82%92%E4%BE%8B%E3%81%AB.pdf
+>- 
 >- Azure Local 展開には NTP 接続が必要です。もしインターネット上のタイムサーバーと接続できない場合は、ローカルにタイムサーバーを立ててAzure Local 各ノードとの接続を確認してください
 >- NTP接続確認は Azure Local OS の Sconfig 画面の 9 から GUI で実施可能です
 >- Azure local 各ノード用の VM には vCPU 16、メモリ 32GB、起動ディスク200GB (可変ディスク)、ストレージ用ディスク 100GBx6 (可変ディスク) を割り当てています
