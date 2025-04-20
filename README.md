@@ -29,6 +29,8 @@
 - https://learn.microsoft.com/ja-jp/azure/azure-local/deploy/deployment-prep-active-directory
 #### 5. 本 GitHub サイトから「AzureLocal-NestedVM作成テンプレート.ps1」をダウンロード
 - ダウンロードしたファイルをノード数分コピーしてパラメータ設定をしておくと並行作業が可能
+#### 6. Hyper-V マシンにて Azure Portal の Azure Local 管理画面から Azure Local OS の ISO イメージをダウンロード (約5GB)
+- 後で利用するため、ISOファイルのパスを確認しておく
 #### 6. Hyper-V マシンにて PowerShell ISE を管理者モードで起動し、作成テンプレートを開く
 - PowreShell ISE をノード数分起動してそれぞれでファイルを開くことで Azure Local ノード作成の並行処理を実現
 
@@ -56,7 +58,17 @@
 
 ## 2. ステップ１： 疑似的な Azure local ノード (仮想マシン) の作成　　(作成テンプレートのステップ１を利用)
 	
-#### 1. ノード名や準備段階でNAT設定したHyper-V仮想スイッチ名、Azure Local ISOイメージのパス、仮想マシンを配置するフォルダー名などをパラメーターを記入
+#### 1. 作成テンプレートの以下のパラメータを編集
+- 1-1: ステップ1 の分：
+	- ノード名
+	- 準備段階でNAT設定したHyper-V仮想スイッチ名
+	- Azure Local ISOイメージのパス
+	- 仮想マシンを配置するフォルダー名
+- 1-2: ステップ2 の分
+	- 管理用 NIC の IP アドレス＝Azure Local の管理に利用
+ 	- 管理用 NIC のデフォルトゲートウェイ IP アドレス
+  	- 管理用 NIC の DNS サーバー IP アドレス
+  	- Azure Local OS のパスワード＝Azure Local インストール後に設定したパスワード
 #### 2. 「### ステップ１開始」から「### ステップ１終了」までの行を選択し、[選択項目を実行(F8)]をクリック
 - 仮想マシンの作成、設定が自動で行われ、Hyper-Vのコンソールが立ち上がる
 #### 3. コンソール内では、仮想マシンが自動起動し、ISOからブートするための画面になるのでEnterなどを押下し、Azure Local OSのインストールを実行
